@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ngân Ty — Cổng Game VIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --gold-dim: #7A5F28;
+    --cream: #F5EDD8;
+    --bg: #080808;
+    --bg2: #0F0F0F;
+    --card: #141414;
+    --border: rgba(201,168,76,0.18);
+    --text: #E8DCC8;
+    --sub: #8A7A60;
+  }
+ 
+  html { scroll-behavior: smooth; }
+ 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+ 
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+ 
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 48px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+ 
+  /* ─── GLOW BG ─── */
+  .glow-top {
+    position: fixed;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+ 
+  /* ─── AVATAR ─── */
+  .avatar-wrap {
+    position: relative;
+    margin-bottom: 22px;
+    animation: fadeDown 0.8s ease both;
+  }
+  .avatar-ring {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(from 0deg, var(--gold), var(--gold-light), var(--gold-dim), var(--gold));
+    animation: spinRing 6s linear infinite;
+  }
+  .avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--bg);
+  }
+  .avatar-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+  .avatar-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: var(--gold);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    border: 2px solid var(--bg);
+  }
+ 
+  /* ─── NAME / BIO ─── */
+  .profile-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--gold-light);
+    text-align: center;
+    animation: fadeDown 0.9s 0.1s ease both;
+  }
+  .profile-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--sub);
+    margin-top: 4px;
+    text-align: center;
+    animation: fadeDown 0.9s 0.2s ease both;
+  }
+  .profile-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--sub);
+    margin-top: 10px;
+    text-align: center;
+    animation: fadeDown 0.9s 0.25s ease both;
+  }
+ 
+  /* ─── DIVIDER ─── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 28px 0 20px;
+    animation: fadeIn 1s 0.3s ease both;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim));
+  }
+  .divider::after { background: linear-gradient(to left, transparent, var(--gold-dim)); }
+  .divider span {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    white-space: nowrap;
+  }
+ 
+  /* ─── SECTION LABEL ─── */
+  .section-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    width: 100%;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+ 
+  /* ─── MAIN CTA BUTTON ─── */
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    background: linear-gradient(135deg, #1A1508 0%, #231C0A 100%);
+    border: 1px solid var(--gold-dim);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+    animation: fadeUp 0.7s ease both;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .btn-primary:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201,168,76,0.18);
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:active { transform: scale(0.98); }
+ 
+  .btn-left { display: flex; align-items: center; gap: 14px; }
+  .btn-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .icon-game { background: linear-gradient(135deg, #1A0A0A, #2A0A0A); border: 1px solid rgba(255,60,60,0.25); }
+  .icon-tele { background: linear-gradient(135deg, #0A1525, #0A1A35); border: 1px solid rgba(60,140,255,0.25); }
+  .icon-zalo { background: linear-gradient(135deg, #0A1A10, #051510); border: 1px solid rgba(60,220,120,0.25); }
+ 
+  .btn-text-wrap { display: flex; flex-direction: column; gap: 3px; }
+  .btn-main-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+  .btn-sub-text {
+    font-size: 10px;
+    color: var(--sub);
+    letter-spacing: 0.06em;
+  }
+  .btn-arrow {
+    color: var(--gold-dim);
+    font-size: 14px;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover .btn-arrow {
+    color: var(--gold);
+    transform: translateX(3px);
+  }
+ 
+  /* ─── CARD WITH FEATURES ─── */
+  .contact-card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    animation: fadeUp 0.7s ease both;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .contact-card:hover {
+    border-color: rgba(201,168,76,0.35);
+    box-shadow: 0 6px 28px rgba(201,168,76,0.08);
+  }
+ 
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .card-header:hover { background: rgba(201,168,76,0.04); }
+ 
+  .card-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .card-header-text { flex: 1; }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+  }
+  .card-subtitle {
+    font-size: 10px;
+    color: var(--sub);
+    margin-top: 2px;
+    letter-spacing: 0.06em;
+  }
+  .card-go {
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 300;
+  }
+ 
+  .card-features {
+    padding: 14px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #6A5F4A;
+    letter-spacing: 0.02em;
+  }
+  .feature-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    flex-shrink: 0;
+  }
+  .feature-row span { color: var(--text); opacity: 0.75; }
+  .feature-tag {
+    margin-left: auto;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .tag-blue { background: rgba(60,140,255,0.12); color: #5BA0FF; border: 1px solid rgba(60,140,255,0.2); }
+  .tag-green { background: rgba(60,200,120,0.12); color: #4CD688; border: 1px solid rgba(60,200,120,0.2); }
+  .tag-gold { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+ 
+  .card-cta {
+    display: block;
+    margin: 0 16px 16px;
+    padding: 11px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .cta-tele {
+    background: linear-gradient(135deg, rgba(60,140,255,0.15), rgba(30,90,200,0.1));
+    border: 1px solid rgba(60,140,255,0.3);
+    color: #7BBFFF;
+  }
+  .cta-zalo {
+    background: linear-gradient(135deg, rgba(60,200,120,0.15), rgba(30,150,80,0.1));
+    border: 1px solid rgba(60,200,120,0.3);
+    color: #6ADEA0;
+  }
+  .card-cta:hover { opacity: 0.85; transform: scale(0.99); }
+ 
+  /* ─── FOOTER ─── */
+  .footer {
+    margin-top: 36px;
+    text-align: center;
+    animation: fadeIn 1s 0.8s ease both;
+  }
+  .footer-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .footer-line::before, .footer-line::after {
+    content: '◆';
+    font-size: 6px;
+    color: var(--gold-dim);
+  }
+  .footer-text {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+  .footer-copy {
+    font-size: 10px;
+    color: #3A3028;
+    margin-top: 6px;
+  }
+ 
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes spinRing {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+ 
+  .btn-primary:nth-child(1) { animation-delay: 0.35s; }
+  .contact-card:nth-child(1) { animation-delay: 0.45s; }
+  .contact-card:nth-child(2) { animation-delay: 0.55s; }
+ 
+  /* PULSE LIVE DOT */
+  .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4CD688;
+    margin-right: 4px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(76,214,136,0.5); }
+    50%      { box-shadow: 0 0 0 5px rgba(76,214,136,0); }
+  }
+</style>
+</head>
+<body>
+<div class="glow-top"></div>
+ 
+<div class="wrapper">
+ 
+  <!-- AVATAR -->
+  <div class="avatar-wrap">
+    <div class="avatar-ring">
+      <div class="avatar-inner">
+        <!-- Avatar ảnh cô gái từ file upload (dùng base64 hoặc link) -->
+        <img src="https://i.postimg.cc/JhQ5Fg5V/9fcd17ef587f8826679df2d3a53f98f3.jpg" alt="Ngân Ty Avatar"/>
+      </div>
+    </div>
+    <div class="avatar-badge">⭐ VIP</div>
+  </div>
+ 
+  <!-- NAME -->
+  <div class="profile-name">Ngân Ty</div>
+  <div class="profile-title">Official Gaming Ambassador</div>
+  <div class="profile-tagline">Nạp nhanh · Rút gọn · Ưu đãi mỗi ngày</div>
+ 
+  <!-- DIVIDER -->
+  <div class="divider"><span>Liên kết chính thức</span></div>
+ 
+  <!-- MAIN GAME BUTTON -->
+  <div class="section-label">🎮 Cổng Game</div>
+  <a href="https://8k78268.com" target="_blank" class="btn-primary">
+    <div class="btn-left">
+      <div class="btn-icon icon-game">🎰</div>
+      <div class="btn-text-wrap">
+        <div class="btn-main-text">CỔNG GAME CHÍNH THỨC</div>
+        <div class="btn-sub-text"><span class="live-dot"></span>Đang hoạt động · Đăng ký nhận thưởng</div>
+      </div>
+    </div>
+    <div class="btn-arrow">›</div>
+  </a>
+ 
+  <!-- DIVIDER -->
+  <div class="divider" style="margin: 20px 0 18px;"><span>Kênh liên hệ</span></div>
+ 
+  <!-- TELEGRAM CARD -->
+  <div class="section-label">📱 Hỗ trợ nạp / rút / khuyến mãi</div>
+  <div class="contact-card">
+    <a href="https://t.me/ArcadeTy" target="_blank" class="card-header">
+      <div class="card-icon" style="padding:0;overflow:hidden;border:2px solid rgba(60,140,255,0.3);"><img src="https://i.postimg.cc/3wZFq6Cs/56874aa62745736fd0828b8471a0ddf7.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="Ngân Ty Telegram"/></div>
+      <div class="card-header-text">
+        <div class="card-title">Ngân Ty — Telegram</div>
+        <div class="card-subtitle">@ArcadeTy · CSKH chính thức 24/7</div>
+      </div>
+      <div class="card-go">›</div>
+    </a>
+    <div class="card-features">
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Hỗ Trợ Nạp Rút</span>
+        <div class="feature-tag tag-blue">Nhanh</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>CSKH 24/7 — Không nghỉ lễ</span>
+        <div class="feature-tag tag-gold">24/7</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Xử lý lỗi đăng nhập</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Nhận khuyến mãi & hoàn tiền</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Admin hỗ trợ trực tiếp</span>
+      </div>
+    </div>
+    <a href="https://t.me/ArcadeTy" target="_blank" class="card-cta cta-tele">
+      ✈️ Nhắn tin Telegram ngay
+    </a>
+  </div>
+ 
+  <!-- ZALO CARD -->
+  <div class="section-label" style="margin-top:6px;">💚 Tư vấn / Đại lý / Kèo mới</div>
+  <div class="contact-card">
+    <a href="https://zalo.me/84926830603" target="_blank" class="card-header">
+      <div class="card-icon" style="padding:0;overflow:hidden;border:2px solid rgba(60,200,120,0.3);"><img src="https://i.postimg.cc/wBkQrPQK/673f4d74-3efd-4443-b6fe-bdf60d4eac81.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" alt="Phạm Thế Anh Zalo"/></div>
+      <div class="card-header-text">
+        <div class="card-title">Phạm Thế Anh — Zalo</div>
+        <div class="card-subtitle">0926.830.603 · Tư vấn & Đại lý VIP</div>
+      </div>
+      <div class="card-go">›</div>
+    </a>
+    <div class="card-features">
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Tư Vấn Game & Kèo Mới</span>
+        <div class="feature-tag tag-green">HOT</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Hỗ Trợ Nhận Code & Ưu Đãi</span>
+        <div class="feature-tag tag-gold">VIP</div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Chuyên Viên Khuyến Mãi</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Đăng ký Đại Lý hoa hồng cao</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot"></div>
+        <span>Giới thiệu bạn bè nhận thưởng</span>
+      </div>
+    </div>
+    <a href="https://zalo.me/84926830603" target="_blank" class="card-cta cta-zalo">
+      💚 Liên hệ Zalo ngay
+    </a>
+  </div>
+ 
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-line">
+      <div class="footer-text">Ngân Ty · Official Links</div>
+    </div>
+    <div class="footer-copy">© 2025 · Tất cả liên kết đều chính thức</div>
+  </div>
+ 
+</div>
+</body>
+</html>
